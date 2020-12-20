@@ -1,5 +1,3 @@
-const { response } = require("express");
-
 const APP_PREFIX = 'BudgetTracker-';
 const VERSION = 'version_01';
 const CACHE_NAME = APP_PREFIX + VERSION;
@@ -53,7 +51,7 @@ self.addEventListener('activate', function(e) {
 });
 
 self.addEventListener('fetch', function(e) {
-    if(evt.request.url.includes('/api/')) {
+    if(e.request.url.includes('/api/')) {
         e.respondWith(
             caches
             .open(DATA_CACHE_NAME)
@@ -61,12 +59,12 @@ self.addEventListener('fetch', function(e) {
                 return fetch(e.request)
                 .then(response => {
                     if(response.status === 200) {
-                        cache.put(evt.request.url, response.clone());
+                        cache.put(e.request.url, response.clone());
                     }
                     return response;
                 })
                 .catch(err => {
-                    return cache.match(evt.request);
+                    return cache.match(e.request);
                 });
             })
             .catch(err => console.log(err))
@@ -79,7 +77,7 @@ self.addEventListener('fetch', function(e) {
             return caches.match(e.request).then(function(response) {
                 if(response) {
                     return response;
-                } else if(evt.request.headers.get('accept').includes('text/html')){
+                } else if(e.request.headers.get('accept').includes('text/html')){
                     return caches.match('/');
                 }
             });
